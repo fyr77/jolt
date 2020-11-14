@@ -97,8 +97,10 @@ public class Util {
     public static void buildManifest(String mcVersion, String forgeVersion) {
         JSONObject jo = new JSONObject();
         jo.put("minecraft", new JSONObject().put("version", mcVersion));
-        jo.getJSONObject("minecraft").put("modLoaders",new JSONObject().put())
+        jo.getJSONObject("minecraft").put("modLoaders",new JSONObject().put("id",forgeVersion));
+        jo.getJSONObject("minecraft").getJSONObject("modLoaders").put("primary", true);
         System.out.println(jo.toString());
+        //TODO build whole file
     }
 
     public static void buildModlist() {

@@ -2,10 +2,10 @@ package com.notjakob.jolt;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import org.json.*;
 
 public class Main {
 
@@ -17,6 +17,7 @@ public class Main {
         String forgeVersion = null;
 
         System.out.println("The current working directory is " + currentDirectory + ".");
+        Util.buildManifest("1.16.3","34.1.4");
 
         if (!Util.checkInternet()) {
             System.out.println("Failed to connect to the internet.\nA working internet connection is required for this application to work.");
@@ -44,7 +45,8 @@ public class Main {
 
         File modlistFile = new File(modlistPath);
         if (modlistFile.isFile()) {
-            //TODO get mods and depencies
+            //TODO get mods and dependencies
+
         }
         else {
             System.out.println("No modlist found.");

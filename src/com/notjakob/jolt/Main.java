@@ -5,19 +5,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.json.*;
-
 public class Main {
 
     public static void main(String[] args) {
         String currentDirectory = System.getProperty("user.dir");
         String envPath = currentDirectory + "\\env.txt";
-        String modlistPath = currentDirectory + "\\mods.txt";
+        String modListPath = currentDirectory + "\\mods.txt";
         String mcVersion = null;
         String forgeVersion = null;
 
         System.out.println("The current working directory is " + currentDirectory + ".");
-        Util.buildManifest("1.16.3","34.1.4");
+        Util.buildManifest("1.16.3","34.1.4", "test", "1.0", "fyr77", modListPath);
 
         if (!Util.checkInternet()) {
             System.out.println("Failed to connect to the internet.\nA working internet connection is required for this application to work.");
@@ -43,14 +41,14 @@ public class Main {
             System.exit(1);
         }
 
-        File modlistFile = new File(modlistPath);
+        File modlistFile = new File(modListPath);
         if (modlistFile.isFile()) {
             //TODO get mods and dependencies
 
         }
         else {
             System.out.println("No modlist found.");
-            System.out.println("Please create a file named \"modlist.txt\" paste the links to your CurseForge mods in it.");
+            System.out.println("Please create a file named \"mods.txt\" paste the links to your CurseForge mods in it.");
             System.exit(1);
         }
     }

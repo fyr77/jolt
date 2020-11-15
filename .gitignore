@@ -96,5 +96,5 @@ fabric.properties
 
 # custom ignores
 env.txt
-modlist.txt
+mods.txt
 overrides

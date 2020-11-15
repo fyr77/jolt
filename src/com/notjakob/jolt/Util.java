@@ -1,8 +1,6 @@
 package com.notjakob.jolt;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -67,14 +65,14 @@ public class Util {
         return cleanURL;
     }
 
-    public static int getProjectID(String urlString) throws IOException {
+    private static int getProjectID(String urlString) throws IOException {
         String jsonUrl = formatURL(urlString);
         String jsonString = downloadWeb(jsonUrl);
         JSONObject obj = new JSONObject(jsonString);
         return obj.getInt("id");
     }
 
-    public static int getFileID(String urlString, String mcVersion) throws IOException {
+    private static int getFileID(String urlString, String mcVersion) throws IOException {
         //TODO warn user if file version != mc version
         int fID = 0;
 
@@ -94,17 +92,47 @@ public class Util {
         }
     }
 
-    public static void buildManifest(String mcVersion, String forgeVersion) {
+    public static void buildManifest(String mcVersion, String forgeVersion, String packName, String packVersion, String packAuthor, String modListPath) {
         JSONObject jo = new JSONObject();
         jo.put("minecraft", new JSONObject().put("version", mcVersion));
         jo.getJSONObject("minecraft").put("modLoaders",new JSONObject().put("id",forgeVersion));
         jo.getJSONObject("minecraft").getJSONObject("modLoaders").put("primary", true);
+        jo.put("manifestType", "minecraftModpack");
+        jo.put("manifestVersion", 1);
+        jo.put("name", packName);
+        jo.put("version", packVersion);
+        jo.put("author", packAuthor);
+        jo.put("files", buildModlist(mcVersion, modListPath));
+        jo.put("overrides", "overrides");
+
         System.out.println(jo.toString());
-        //TODO build whole file
+        //TODO save to file for ZIP
     }
 
-    public static void buildModlist() {
-        //TODO
+    private static JSONArray buildModlist(String mcVersion, String modListPath) {
+        //TODO Dependencies
+        //TODO Duplicates
+        JSONArray ja = new JSONArray();
+
+        try {
+            File f = new File(modListPath);
+            BufferedReader b = new BufferedReader(new FileReader(f));
+            String readLine;
+            while ((readLine = b.readLine()) != null) {
+                System.out.println(readLine);
+                JSONObject jo = new JSONObject();
+                jo.put("projectID", getProjectID(readLine));
+                jo.put("fileID", getFileID(readLine,mcVersion));
+                jo.put("required",true);
+
+                ja.put(jo);
+                //TODO create HTML
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return ja;
     }
 
     public static void createZip() {

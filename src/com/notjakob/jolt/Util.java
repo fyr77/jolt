@@ -6,9 +6,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.json.*;
 
 public class Util {
@@ -59,88 +58,13 @@ public class Util {
      * @return the JSON, saved to a string
      * @throws IOException If internet connection fails
      */
-    private static String downloadWeb(String urlString) throws IOException {
+    public static String downloadWeb(String urlString) throws IOException {
         URL url = new URL(urlString);
         URLConnection con = url.openConnection();
         con.setRequestProperty("User-Agent", "jolt (java)");
         InputStream in = con.getInputStream();
         String encoding = "UTF-8"; //force UTF-8, no need to check (I hope).
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buf = new byte[8192]; //This might overflow in the future, if a mod has too many files.
-        int len;
-        while ((len = in.read(buf)) != -1) {
-            baos.write(buf, 0, len);
-        }
-        return new String(baos.toByteArray(), encoding);
-    }
-
-    /**
-     * Converts the user-supplied URLs to cfwidget API URLs
-     * @param urlString URL to convert
-     * @return cfwidget API URL
-     */
-    private static String formatURL(String urlString) {
-        String cleanURL = urlString.replaceAll("/files/\\d+","");
-        if (cleanURL.endsWith("/")) {
-            cleanURL = cleanURL.substring(0,cleanURL.length() - 1);
-        }
-        cleanURL = cleanURL.replaceFirst("[w.]*curseforge\\.com","api.cfwidget.com");
-        return cleanURL;
-    }
-
-    /**
-     * Gets project ID from URL using the cfwidget API
-     * @param urlString URL to get project ID from
-     * @return Project ID
-     * @throws IOException If internet connection fails
-     */
-    private static int getProjectID(String urlString) throws IOException {
-        String jsonUrl = formatURL(urlString);
-        String jsonString = downloadWeb(jsonUrl);
-        JSONObject obj = new JSONObject(jsonString);
-        return obj.getInt("id");
-    }
-
-    /**
-     * Gets file ID from URL using the cfwidget API
-     * @param urlString URL to get file ID from. If file URL is supplied, exact file will be used.
-     * @param mcVersion Minecraft version to get the latest file for
-     * @return File ID
-     * @throws IOException If internet connection fails
-     */
-    private static int getFileID(String urlString, String mcVersion) throws IOException {
-        //TODO warn user if file version != mc version
-        int fID = 0;
-
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(urlString);
-        while(m.find()) {
-            fID = Integer.parseInt(m.group());
-        }
-        if (fID == 0) {
-            String jsonUrl = formatURL(urlString) + "?version=" + mcVersion;
-            String jsonString = downloadWeb(jsonUrl);
-            JSONObject obj = new JSONObject(jsonString);
-            return obj.getJSONObject("download").getInt("id");
-        }
-        else {
-            return fID;
-        }
-    }
-
-    /**
-     * Gets file ID from URL using the cfwidget API
-     * @param projectID Project ID to get file ID for
-     * @param mcVersion Minecraft version to get the latest file for
-     * @return File ID
-     * @throws IOException If internet connection fails
-     */
-    private static int getFileID(int projectID, String mcVersion) throws IOException {
-        //TODO warn user if file version != mc version
-        String jsonUrl = "https://api.cfwidget.com/minecraft/mc-mods/" + projectID + "?version=" + mcVersion;
-        String jsonString = downloadWeb(jsonUrl);
-        JSONObject obj = new JSONObject(jsonString);
-        return obj.getJSONObject("download").getInt("id");
+        return IOUtils.toString(in, encoding);
     }
 
     /**
@@ -150,11 +74,11 @@ public class Util {
      * @param packName Modpack name
      * @param packVersion Modpack version
      * @param packAuthor Modpack author
-     * @param modListPath Path to the mods.txt file
+     * @param tempPath Path to the generated temp directory
+     * @param mods Output of Util.getMods
      */
-    public static void buildManifest(String mcVersion, String forgeVersion, String packName, String packVersion, String packAuthor, String modListPath) {
+    public static void buildManifest(String mcVersion, String forgeVersion, String packName, String packVersion, String packAuthor, String tempPath, ConcurrentHashMap<Integer, Integer> mods) {
         JSONObject jo = new JSONObject();
-        ConcurrentHashMap<Integer, Integer> mods = getMods(mcVersion, modListPath);
         jo.put("minecraft", new JSONObject().put("version", mcVersion));
         jo.getJSONObject("minecraft").put("modLoaders",new JSONObject().put("id",forgeVersion));
         jo.getJSONObject("minecraft").getJSONObject("modLoaders").put("primary", true);
@@ -166,12 +90,43 @@ public class Util {
         jo.put("files", buildModlist(mods));
         jo.put("overrides", "overrides");
 
-        System.out.println(jo.toString());
-        //TODO save to file for ZIP
+        //create manifest.json file in temp
+        File manifest = new File(tempPath + "/manifest.json");
+        try {
+            if (manifest.createNewFile()) {
+                Filesystem.writeStringToFile(jo.toString(),manifest);
+            }
+            else {
+                throw new IOException("File already exists?");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Unable to create manifest in temporary directory. Please report this on GitHub: https://github.com/fyr77/jolt\"");
+            System.exit(2);
+        }
     }
 
-    public static void buildHTML() {
+    /**
+     * Creates modlist.html, which seems to be necessary for CurseForge.
+     * @param mods Output of Util.getMods
+     * @param tempPath Temporary working directory
+     * @throws IOException Thrown if file could not be written
+     */
+    public static void buildHTML(ConcurrentHashMap<Integer, Integer> mods, String tempPath) throws IOException {
+        StringBuilder htmlBuilder = new StringBuilder("<ul>\n");
+        for (Map.Entry<Integer, Integer> entry : mods.entrySet()) {
+            try {
+                htmlBuilder.append("<li><a href=\"https://minecraft.curseforge.com/mc-mods/").append(entry.getKey()).append("\">").append(API.getModName(entry.getKey())).append("</a></li>\n");
+            } catch (IOException e) {
+                System.out.println("Unable to get info for project ID " + entry);
+                e.printStackTrace();
+            }
+        }
+        String html = htmlBuilder.toString();
 
+        html += "</ul>";
+        File modlist = new File(tempPath + "/modlist.html");
+        Filesystem.writeStringToFile(html,modlist);
     }
 
     /**
@@ -199,24 +154,24 @@ public class Util {
      * @param modListPath Path to the mods.txt file
      * @return Modlist as a ConcurrentHashMap
      */
-    private static ConcurrentHashMap<Integer, Integer> getMods(String mcVersion, String modListPath) {
+    public static ConcurrentHashMap<Integer, Integer> getMods(String mcVersion, String modListPath) {
         ConcurrentHashMap<Integer, Integer> hm = new ConcurrentHashMap<>();
         try {
             File f = new File(modListPath);
             BufferedReader b = new BufferedReader(new FileReader(f));
             String readLine;
             while ((readLine = b.readLine()) != null) {
-                int pID = getProjectID(readLine);
+                int pID = API.getProjectID(readLine);
                 if (hm.containsKey(pID)) {
                     System.out.println("Possible duplicate mod! URL: " + readLine + " - adding it anyway.");
                 }
-                hm.put(pID, getFileID(readLine, mcVersion));
+                hm.put(pID, API.getFileID(readLine, mcVersion));
             }
             for (Map.Entry<Integer, Integer> entry : hm.entrySet()) {
                 for(int pID : getDependencies(entry.getKey(), entry.getValue()))
                 {
                     if (!hm.containsKey(pID)) {
-                        hm.put(pID,getFileID(pID,mcVersion));
+                        hm.put(pID,API.getFileID(pID,mcVersion));
                     }
                 }
             }
@@ -258,9 +213,5 @@ public class Util {
             }
         }
         return pIDs;
-    }
-
-    public static void createZip() {
-        //TODO
     }
 }

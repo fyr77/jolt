@@ -69,6 +69,12 @@ An example overrides structure could look like this:
 
 The overrides folder is optional.
 
+## Compatibility
+
+Jolt has been tested on Windows 10 x64 using AdoptOpenJDK 8 and AdoptOpenJDK 11.
+
+It should work on any operating system using Java 8 or newer. If this is not true, please report your problem in an issue on GitHub.
+
 ## Building
 
 Jolt is a fully configured Maven project. You can easily build it using and IDE like NetBeans or IntelliJ.

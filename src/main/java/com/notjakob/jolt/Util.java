@@ -46,8 +46,8 @@ public class Util {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Error occurred in network connection. Please report this on GitHub: https://github.com/fyr77/jolt");
-            System.exit(255);
+            Cleanup.errorOut += "Error occurred in network connection. Please report this on GitHub: https://github.com/fyr77/jolt\n";
+            Cleanup.deleteDirectory(255);
         }
         return valid;
     }
@@ -80,8 +80,12 @@ public class Util {
     public static void buildManifest(String mcVersion, String forgeVersion, String packName, String packVersion, String packAuthor, String tempPath, ConcurrentHashMap<Integer, Integer> mods) {
         JSONObject jo = new JSONObject();
         jo.put("minecraft", new JSONObject().put("version", mcVersion));
-        jo.getJSONObject("minecraft").put("modLoaders",new JSONObject().put("id",forgeVersion));
-        jo.getJSONObject("minecraft").getJSONObject("modLoaders").put("primary", true);
+        JSONObject modLoaderForge = new JSONObject();
+        modLoaderForge.put("id", "forge-" + forgeVersion);
+        modLoaderForge.put("primary", true);
+        JSONArray modLoaders = new JSONArray();
+        modLoaders.put(modLoaderForge);
+        jo.getJSONObject("minecraft").put("modLoaders", modLoaders);
         jo.put("manifestType", "minecraftModpack");
         jo.put("manifestVersion", 1);
         jo.put("name", packName);
@@ -101,8 +105,8 @@ public class Util {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Unable to create manifest in temporary directory. Please report this on GitHub: https://github.com/fyr77/jolt\"");
-            System.exit(2);
+            Cleanup.errorOut += "Unable to create manifest in temporary directory. Please report this on GitHub: https://github.com/fyr77/jolt\n";
+            Cleanup.deleteDirectory(2);
         }
     }
 
@@ -118,7 +122,7 @@ public class Util {
             try {
                 htmlBuilder.append("<li><a href=\"https://minecraft.curseforge.com/mc-mods/").append(entry.getKey()).append("\">").append(API.getModName(entry.getKey())).append("</a></li>\n");
             } catch (IOException e) {
-                System.out.println("Unable to get info for project ID " + entry);
+                Cleanup.errorOut += "Unable to get info for project ID " + entry + "\n";
                 e.printStackTrace();
             }
         }
@@ -163,7 +167,7 @@ public class Util {
             while ((readLine = b.readLine()) != null) {
                 int pID = API.getProjectID(readLine);
                 if (hm.containsKey(pID)) {
-                    System.out.println("Possible duplicate mod! URL: " + readLine + " - adding it anyway.");
+                    Cleanup.errorOut += "Possible duplicate mod! URL: " + readLine + " - adding it anyway.\n";
                 }
                 hm.put(pID, API.getFileID(readLine, mcVersion));
             }
@@ -178,8 +182,8 @@ public class Util {
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("mods.txt is unreadable! How did this happen? Please report this on GitHub: https://github.com/fyr77/jolt");
-            System.exit(254);
+            Cleanup.errorOut += "mods.txt is unreadable! How did this happen? Please report this on GitHub: https://github.com/fyr77/jolt\n";
+            Cleanup.deleteDirectory(254);
         }
         return hm;
     }
@@ -199,8 +203,8 @@ public class Util {
             jsonString = downloadWeb("https://addons-ecs.forgesvc.net/api/v2/addon/" + projectID + "/file/" + fileID);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Network connection failed. Please check your internet connection.");
-            System.exit(255);
+            Cleanup.errorOut += "Network connection failed. Please check your internet connection.\n";
+            Cleanup.deleteDirectory(255);
         }
         JSONArray depJO = new JSONObject(jsonString).getJSONArray("dependencies");
         for (int i=0; i < depJO.length(); i++) {

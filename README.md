@@ -1,3 +1,5 @@
+![](logo.png)
+
 # Jolt
 
 Jolt is a small and simple modpack generator compatible with CurseForge, the Twitch Launcher and MultiMC (and probably also the new Overwolf CurseForge client).

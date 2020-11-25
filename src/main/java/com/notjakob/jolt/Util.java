@@ -166,10 +166,10 @@ public class Util {
             String readLine;
             while ((readLine = b.readLine()) != null) {
                 int pID = API.getProjectID(readLine);
-                if (hm.containsKey(pID)) {
-                    Cleanup.errorOut += "Possible duplicate mod! URL: " + readLine + " - adding it anyway.\n";
-                }
-                hm.put(pID, API.getFileID(readLine, mcVersion));
+                if (hm.containsKey(pID))
+                    Cleanup.errorOut += "Duplicate mod! URL: " + readLine + " - not adding it to the modpack.\n";
+                else
+                    hm.put(pID, API.getFileID(readLine, mcVersion));
             }
             for (Map.Entry<Integer, Integer> entry : hm.entrySet()) {
                 for(int pID : getDependencies(entry.getKey(), entry.getValue()))

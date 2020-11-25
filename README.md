@@ -6,16 +6,16 @@ Jolt is a small and simple modpack generator compatible with CurseForge, the Twi
 
 Jolt can:
 
-- Create a modpack zip compatible with the CurseForge standard.
-- Automatically resolve dependencies of mods.
-- Include overrides.
+* Create a modpack zip compatible with the CurseForge standard.
+* Automatically resolve dependencies of mods.
+* Include overrides.
 
 ### Todo
 
 Jolt currently cannot:
 
-- Warn users about mods being incompatible with the selected Minecraft version.
-- Check for application updates.
+* Warn users about mods being incompatible with the selected Minecraft version.
+* Check for application updates.
 
 ## Usage
 
@@ -45,10 +45,10 @@ This file is made up from 5 lines, in order.
 
 This file is much simpler.
 
-- Simply paste the links to the mods you want to use, like for example `https://www.curseforge.com/minecraft/mc-mods/mouse-tweaks`.
-- You can also link directly to a specific file you want to use, for example `https://www.curseforge.com/minecraft/mc-mods/mouse-tweaks/files/3035780`
-- If the file is not directly specified, Jolt will just download the most recent version of the mod for the selected version of Minecraft.
-- Jolt will always attempt to automatically include any dependencies of your mods, if they haven't already manually been included by the user.
+* Simply paste the links to the mods you want to use, like for example `https://www.curseforge.com/minecraft/mc-mods/mouse-tweaks`.
+* You can also link directly to a specific file you want to use, for example `https://www.curseforge.com/minecraft/mc-mods/mouse-tweaks/files/3035780`
+* If the file is not directly specified, Jolt will just download the most recent version of the mod for the selected version of Minecraft.
+* Jolt will always attempt to automatically include any dependencies of your mods, if they haven't already manually been included by the user.
 
 **It is important to only paste one link per line. See the [example files](https://github.com/fyr77/jolt/tree/examples) if you're unsure.**
 
@@ -58,14 +58,14 @@ This is a folder you may create to include any non-CurseForge files in your proj
 
 An example overrides structure could look like this:
 
-- overrides
-  - mods
-    - coolmod.jar
-    - xyz.jar
-    - notoncurseforge.jar
-  - resourcepacks
-    - MyGreatPack.zip
-    - MyOtherGreatPack.zip
+* overrides
+  * mods
+    * coolmod.jar
+    * xyz.jar
+    * notoncurseforge.jar
+  * resourcepacks
+    * MyGreatPack.zip
+    * MyOtherGreatPack.zip
 
 The overrides folder is optional.
 
@@ -80,8 +80,17 @@ It should work on any operating system using Java 8 or newer. If this is not tru
 Jolt is a fully configured Maven project. You can easily build it using and IDE like NetBeans or IntelliJ.
 
 It can also be built using Maven in the command line:
-- `cd /path/to/jolt-source`
-- `maven clean`
-- `maven install`
+* `cd /path/to/jolt-source`
+* `maven clean`
+* `maven install`
 
 This will generate `jolt-{version}-jar-with-dependencies.jar` in the `target` directory.
+
+## Licenses
+
+* This project: [MPL-2.0](https://github.com/fyr77/jolt/blob/main/LICENSE)
+* zip4j: [Apache License 2.0](https://github.com/srikanth-lingala/zip4j/blob/master/LICENSE)
+* commons-io: [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
+* org.json: [custom license](https://github.com/stleary/JSON-java/blob/master/LICENSE)
+
+These licenses can be viewed by starting jolt in the command line with the `licenses` argument, for example `java -jar jolt.jar licenses`

@@ -14,6 +14,12 @@ public class Main {
 
     public static void main(String[] args) {
         final String currentDirectory = System.getProperty("user.dir");
+
+        if (args[0].equals("licenses")) {
+            Licenses.writeLicenses(currentDirectory);
+            System.exit(0);
+        }
+
         final String envPath = currentDirectory + "/env.txt";
         final String modListPath = currentDirectory + "/mods.txt";
         final String overridesPath = currentDirectory + "/overrides";

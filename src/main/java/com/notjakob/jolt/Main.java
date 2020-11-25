@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
@@ -15,10 +16,15 @@ public class Main {
     public static void main(String[] args) {
         final String currentDirectory = System.getProperty("user.dir");
 
-        if (args[0].equals("licenses")) {
+        if (args.length > 0 && args[0].equals("licenses")) {
             Licenses.writeLicenses(currentDirectory);
             System.exit(0);
         }
+        final Properties properties = new Properties();
+        try {
+            properties.load(Main.class.getClassLoader().getResourceAsStream("pom.properties"));
+        } catch (IOException ignored) {}
+        System.out.println("Running Jolt version " + properties.getProperty("version"));
 
         final String envPath = currentDirectory + "/env.txt";
         final String modListPath = currentDirectory + "/mods.txt";

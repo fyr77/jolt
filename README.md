@@ -52,7 +52,7 @@ This file is much simpler.
 * If the file is not directly specified, Jolt will just download the most recent version of the mod for the selected version of Minecraft.
 * Jolt will always attempt to automatically include any dependencies of your mods, if they haven't already manually been included by the user.
 
-**It is important to only paste one link per line. See the [example files](https://github.com/fyr77/jolt/tree/examples) if you're unsure.**
+**It is important to only paste one link per line. See the [example files](https://github.com/fyr77/jolt/tree/main/examples) if you're unsure.**
 
 ### overrides
 

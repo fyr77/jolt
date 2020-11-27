@@ -4,6 +4,10 @@
 
 Jolt is a small and simple modpack generator compatible with CurseForge, the Twitch Launcher and MultiMC (and probably also the new Overwolf CurseForge client).
 
+ ![License](https://img.shields.io/github/license/fyr77/jolt?style=for-the-badge)
+ ![Issues](https://img.shields.io/github/issues/fyr77/jolt?style=for-the-badge)
+ ![Version](https://img.shields.io/github/v/release/fyr77/jolt?style=for-the-badge)
+
 ## Features
 
 Jolt can:

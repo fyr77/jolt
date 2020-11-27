@@ -51,7 +51,7 @@ crashlytics-build.properties
 fabric.properties
 
 # custom ignores
-env.txt
-mods.txt
-overrides
-licenses.txt
+./env.txt
+./mods.txt
+./overrides
+./licenses.txt
